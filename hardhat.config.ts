@@ -10,11 +10,11 @@ module.exports = {
       chainId: 1,
       forking: {
         url: process.env.ETH_RPC,
-        blockNumber: 13293858,
+        blockNumber: 13294590,
       },
     },
   },
   mocha: {
-    timeout: 60000,
+    timeout: 600000,
   },
 };
