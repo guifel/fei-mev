@@ -128,10 +128,15 @@ contract FeiFlashBuy is ICallee {
     }
 
     // borrowIsToken1 tells wich token is the bonding curve token in the promary pool
-    function uniV3FlashBuy(uint256 loanAmount, address bondingCurveAddress, address flashSwapPoolAddress, bool borrowIsToken1) external returns (uint256) {
+    function uniV3FlashBuy( 
+        uint256 loanAmount, 
+        address bondingCurveAddress, 
+        address flashSwapPoolAddress, 
+        bool borrowIsToken1, 
+        bytes memory feiToRepayTokenPath
+    ) external returns (uint256) {
         IUniswapV3Pool uniPool = IUniswapV3Pool(flashSwapPoolAddress);
-        address bondingCurveTokenAddress = borrowIsToken1 ? uniPool.token1() : uniPool.token0();
-        address intermediaryTokenAddress = borrowIsToken1 ? uniPool.token0() : uniPool.token1();
+        address repayTokenAddress = borrowIsToken1 ? uniPool.token0() : uniPool.token1();
 
         uniPool.swap( 
                     address(this),
@@ -140,13 +145,13 @@ contract FeiFlashBuy is ICallee {
                     -int256(loanAmount),
                     // No slippage check
                     type(uint128).max,
-                    abi.encode(bondingCurveAddress, bondingCurveTokenAddress, intermediaryTokenAddress)
+                    abi.encode(bondingCurveAddress, repayTokenAddress, feiToRepayTokenPath)
         );
 
         // Payout profits
-        IERC20 intermediaryToken = IERC20(intermediaryTokenAddress);
-        uint256 profits = intermediaryToken.balanceOf(address(this));
-        intermediaryToken.transfer(msg.sender, profits);
+        IERC20 repayToken = IERC20(repayTokenAddress);
+        uint256 profits = repayToken.balanceOf(address(this));
+        repayToken.transfer(msg.sender, profits);
 
         return profits;
     }
@@ -168,28 +173,24 @@ contract FeiFlashBuy is ICallee {
         
         (
             address bondingCurveAddress,
-            address bondingCurveTokenAddress,
-            address repayTokenAddress
-        ) = abi.decode(data, (address, address, address));
+            address repayTokenAddress,
+            bytes memory feiToRepayTokenPath
+        ) = abi.decode(data, (address, address, bytes));
 
-        IERC20 bondingCurveToken = IERC20(bondingCurveTokenAddress);
         IERC20 repayToken = IERC20(repayTokenAddress);
 
         IBondingCurve bondingCurve = IBondingCurve(bondingCurveAddress);
         
-        bondingCurveToken.approve(address(bondingCurve), type(uint128).max);
+        IERC20(bondingCurve.token()).approve(address(bondingCurve), type(uint128).max);
         uint256 bought = bondingCurve.purchase(address(this), amount0Delta < 0 ? uint256(-amount0Delta) : uint256(-amount1Delta));
 
         FEI.approve(address(swapRouter), type(uint128).max);
-        swapRouter.exactInputSingle(ISwapRouter.ExactInputSingleParams({
-            tokenIn: address(FEI),
-            tokenOut: repayTokenAddress,
-            fee: 500,
+        swapRouter.exactInput(ISwapRouter.ExactInputParams({
+            path: feiToRepayTokenPath,
             recipient: address(this),
             deadline: block.timestamp + 200,
             amountIn: bought,
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0    
+            amountOutMinimum: 0
         }));
 
         console.log("Swapped %s FEI for %s intermediary token", bought, repayToken.balanceOf(address(this)));

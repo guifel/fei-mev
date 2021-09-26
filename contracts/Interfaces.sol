@@ -8,6 +8,7 @@ interface IBondingCurve {
         payable
         returns (uint256 amountOut);
     function allocate() external;
+    function token() external view returns(address);
 }
 
 interface IGovernorAlpha {

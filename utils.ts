@@ -7,3 +7,7 @@ export async function takeSnapshot() {
 export async function restoreSnapshot(id: string) {
   await ethers.provider.send("evm_revert", [id]);
 }
+
+export function sleep(ms: any) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
