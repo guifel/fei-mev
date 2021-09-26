@@ -1,12 +1,205 @@
-export const PROPOSAL_NUMBER = 21;
-export const FEI_DAO_ADDRESS = "0xE087F94c3081e1832dC7a22B48c6f2b5fAaE579B";
+import {
+  DAI_BONDING_CURVE,
+  UNI_V3_DAI_USDC_5,
+  ERC20_FEI,
+  ERC20_USDC,
+  ERC20_DAI,
+  DPI_BONDING_CURVE,
+  ERC20_WETH,
+  RAI_BONDING_CURVE,
+  UNI_V3_DPI_ETH_30,
+  UNI_V3_RAI_USDC_5,
+} from "./constants";
 
-export const DAI_BONDING_CURVE = "0xC0afe0E649e32528666F993ce63822c3840e941a";
-export const RAI_BONDING_CURVE = "0x25d60212D47Dd8F6Ff0469367E4c6C98Cd3411A5";
+import FeiFlashBuyAbi from "./artifacts/contracts/Flashbuy.sol/FeiFlashBuy.json";
 
-export const UNI_V3_FEI_USDC_5 = "0x8c54aA2A32a779e6f6fBea568aD85a19E0109C26";
-export const UNI_V3_RAI_USDC_5 = "0xFA7D7A0858a45C1b3b7238522A0C0d123900c118";
-export const UNI_V3_DAI_USDC_5 = "0x6c6Bc977E13Df9b0de53b251522280BB72383700";
+import { BigNumber, ethers } from "ethers";
+import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
 
-export const ERC20_DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-export const ERC20_USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+const FEI_FLASHBUY_CONTRACT = "0xC38Cc9C982A8bdcBBA961d7fac11DdbBD90638fF";
+
+require("dotenv").config();
+
+// const provider = new ethers.providers.StaticJsonRpcProvider(process.env.ETH_RPC);
+
+if (!process.env.FB_PRIV_KEY || !process.env.PRIV_KEY) {
+  throw Error("Missing config");
+}
+
+const provider = new ethers.providers.StaticJsonRpcProvider(process.env.ETH_RPC);
+const fbSigner = new ethers.Wallet(process.env.FB_PRIV_KEY);
+const wallet = new ethers.Wallet(process.env.PRIV_KEY, provider);
+
+const main = async () => {
+  const flashbotsProvider = await FlashbotsBundleProvider.create(provider, fbSigner);
+  while (true) {
+    await doWork(flashbotsProvider);
+    await sleep(2000);
+  }
+};
+
+const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
+  // @ts-ignore
+  const feiFlashBuy = new ethers.Contract(FEI_FLASHBUY_CONTRACT, FeiFlashBuyAbi.abi, wallet);
+
+  const calls = [
+    // DAI 2m
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("2000000"),
+      DAI_BONDING_CURVE,
+      UNI_V3_DAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+
+    // DAI 1m
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("1000000"),
+      DAI_BONDING_CURVE,
+      UNI_V3_DAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // DAI 500k
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("500000"),
+      DAI_BONDING_CURVE,
+      UNI_V3_DAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // DAI 150k
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("150000"),
+      DAI_BONDING_CURVE,
+      UNI_V3_DAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // RAI 333k
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("300000"),
+      RAI_BONDING_CURVE,
+      UNI_V3_RAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // RAI 166k
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("300000"),
+      RAI_BONDING_CURVE,
+      UNI_V3_RAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // RAI 50k
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("50000"),
+      RAI_BONDING_CURVE,
+      UNI_V3_RAI_USDC_5,
+      false,
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+    ),
+    // DPI 1m
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("3076"),
+      DPI_BONDING_CURVE,
+      UNI_V3_DPI_ETH_30,
+      false,
+      ethers.utils.solidityPack(
+        ["address", "uint24", "address", "uint24", "address"],
+        [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_WETH]
+      )
+    ),
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("1538"),
+      DPI_BONDING_CURVE,
+      UNI_V3_DPI_ETH_30,
+      false,
+      ethers.utils.solidityPack(
+        ["address", "uint24", "address", "uint24", "address"],
+        [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_WETH]
+      )
+    ),
+    await feiFlashBuy.populateTransaction.uniV3FlashBuy(
+      ethers.utils.parseEther("461"),
+      DPI_BONDING_CURVE,
+      UNI_V3_DPI_ETH_30,
+      false,
+      ethers.utils.solidityPack(
+        ["address", "uint24", "address", "uint24", "address"],
+        [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_WETH]
+      )
+    ),
+  ];
+
+  let maxProfit = BigNumber.from("0");
+  let bestCallIndex: number = -1;
+  for (let i = 0; i < calls.length; i++) {
+    let resp: string;
+    try {
+      resp = await provider.call(calls[i]);
+
+      if (resp.startsWith("0x08c379a0")) {
+        continue;
+      }
+    } catch (err) {
+      continue;
+    }
+
+    const profit = BigNumber.from(resp);
+
+    console.log(`Arb: ${profit.toString()}`);
+
+    if (profit.gt(maxProfit)) {
+      maxProfit = profit;
+      bestCallIndex = i;
+    }
+  }
+
+  if (maxProfit.eq("0")) {
+    return;
+  }
+
+  console.log(`Max profit ${maxProfit.toString()} from call index ${bestCallIndex}`);
+
+  if (bestCallIndex <= 6 && maxProfit.lt(ethers.utils.parseEther("500"))) {
+    console.log("Profit USD too small");
+    return;
+  } else if (bestCallIndex > 5 && maxProfit.lt(ethers.utils.parseEther("0.15"))) {
+    console.log("Profit ETH too small");
+    return;
+  }
+
+  // Do transaction!
+  console.log(`Send transaction...`);
+
+  const transaction = calls[bestCallIndex];
+
+  const baseFee = (await provider.getBlock("latest")).baseFeePerGas as BigNumber;
+
+  transaction.gasPrice = baseFee.mul(2);
+  transaction.gasLimit = BigNumber.from("500000");
+
+  const bundle = await flashbotsProvider.signBundle([
+    {
+      signer: wallet,
+      transaction: transaction,
+    },
+  ]);
+
+  const currentBlock = await provider.getBlockNumber();
+  const bundleReceipts = Promise.all([
+    await flashbotsProvider.sendRawBundle(bundle, currentBlock + 1),
+    await flashbotsProvider.sendRawBundle(bundle, currentBlock + 2),
+    await flashbotsProvider.sendRawBundle(bundle, currentBlock + 3),
+  ]);
+
+  console.log("Sent");
+  console.log(bundleReceipts);
+};
+
+function sleep(ms: any) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+main();
