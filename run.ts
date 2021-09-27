@@ -194,14 +194,16 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
     },
   ]);
 
-  const bundleReceipts = Promise.all([
+  const bundleReceipts = await Promise.all([
     await flashbotsProvider.sendRawBundle(bundle, currentBlock + 1),
     await flashbotsProvider.sendRawBundle(bundle, currentBlock + 2),
     await flashbotsProvider.sendRawBundle(bundle, currentBlock + 3),
   ]);
 
   console.log("Sent");
-  console.log(bundleReceipts);
+  console.log(bundleReceipts[0]);
+  console.log(await (bundleReceipts[0] as any).simulate());
+  console.log(await (bundleReceipts[0] as any).receipts());
 };
 
 function sleep(ms: any) {
