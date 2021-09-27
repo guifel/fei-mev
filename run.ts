@@ -147,9 +147,14 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
       continue;
     }
 
-    const profit = BigNumber.from(resp);
+    let profit = BigNumber.from(resp);
 
-    console.log(`Arb: ${profit.toString()}`);
+    console.log(`Arb: ${profit.toString()} index ${i}`);
+
+    if (i > 5) {
+      // Because it's ETH profits
+      profit = profit.mul("3100");
+    }
 
     if (profit.gt(maxProfit)) {
       maxProfit = profit;
@@ -160,13 +165,14 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
   if (maxProfit.eq("0")) {
     return;
   }
+  const currentBlock = await provider.getBlockNumber();
 
-  console.log(`Max profit ${maxProfit.toString()} from call index ${bestCallIndex}`);
+  console.log(`[${currentBlock}] Max profit ${maxProfit.toString()} from call index ${bestCallIndex}`);
 
-  if (bestCallIndex <= 6 && maxProfit.lt(ethers.utils.parseEther("500"))) {
+  if (bestCallIndex <= 6 && maxProfit.lt("200000000")) {
     console.log("Profit USD too small");
     return;
-  } else if (bestCallIndex > 5 && maxProfit.lt(ethers.utils.parseEther("0.15"))) {
+  } else if (bestCallIndex > 5 && maxProfit.lt(ethers.utils.parseEther("200"))) {
     console.log("Profit ETH too small");
     return;
   }
@@ -178,8 +184,8 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
 
   const baseFee = (await provider.getBlock("latest")).baseFeePerGas as BigNumber;
 
-  transaction.gasPrice = baseFee.mul(2);
-  transaction.gasLimit = BigNumber.from("500000");
+  transaction.gasPrice = baseFee.mul(13).div(10);
+  transaction.gasLimit = BigNumber.from("900000");
 
   const bundle = await flashbotsProvider.signBundle([
     {
@@ -188,7 +194,6 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
     },
   ]);
 
-  const currentBlock = await provider.getBlockNumber();
   const bundleReceipts = Promise.all([
     await flashbotsProvider.sendRawBundle(bundle, currentBlock + 1),
     await flashbotsProvider.sendRawBundle(bundle, currentBlock + 2),
