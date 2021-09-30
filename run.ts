@@ -83,7 +83,7 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
       RAI_BONDING_CURVE,
       UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
+      ethers.utils.solidityPack(["address", "uint24", "address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
     // RAI 166k [5]
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
@@ -91,7 +91,7 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
       RAI_BONDING_CURVE,
       UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
+      ethers.utils.solidityPack(["address", "uint24", "address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
     // RAI 50k [6]
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
@@ -99,7 +99,7 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
       RAI_BONDING_CURVE,
       UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
+      ethers.utils.solidityPack(["address", "uint24", "address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
     // DPI 1m
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
