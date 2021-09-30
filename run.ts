@@ -9,6 +9,7 @@ import {
   RAI_BONDING_CURVE,
   UNI_V3_DPI_ETH_30,
   UNI_V3_RAI_USDC_5,
+  UNI_V3_RAI_DAI_5,
 } from "./constants";
 
 import FeiFlashBuyAbi from "./artifacts/contracts/Flashbuy.sol/FeiFlashBuy.json";
@@ -78,27 +79,27 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
     ),
     // RAI 333k
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
-      ethers.utils.parseEther("300000"),
+      ethers.utils.parseEther("333333"),
       RAI_BONDING_CURVE,
-      UNI_V3_RAI_USDC_5,
+      UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
-    // RAI 166k
+    // RAI 166k [5]
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
-      ethers.utils.parseEther("300000"),
+      ethers.utils.parseEther("166666"),
       RAI_BONDING_CURVE,
-      UNI_V3_RAI_USDC_5,
+      UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
-    // RAI 50k
+    // RAI 50k [6]
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
       ethers.utils.parseEther("50000"),
       RAI_BONDING_CURVE,
-      UNI_V3_RAI_USDC_5,
+      UNI_V3_RAI_DAI_5,
       false,
-      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC])
+      ethers.utils.solidityPack(["address", "uint24", "address"], [ERC20_FEI, 500, ERC20_USDC, 500, ERC20_DAI])
     ),
     // DPI 1m
     await feiFlashBuy.populateTransaction.uniV3FlashBuy(
@@ -151,9 +152,9 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
 
     console.log(`Arb: ${profit.toString()} index ${i}`);
 
-    if (i > 5) {
+    if (i > 6) {
       // Because it's ETH profits
-      profit = profit.mul("3100");
+      profit = profit.mul("2900");
     }
 
     if (profit.gt(maxProfit)) {
@@ -172,7 +173,7 @@ const doWork = async (flashbotsProvider: FlashbotsBundleProvider) => {
   if (bestCallIndex <= 6 && maxProfit.lt("200000000")) {
     console.log("Profit USD too small");
     return;
-  } else if (bestCallIndex > 5 && maxProfit.lt(ethers.utils.parseEther("200"))) {
+  } else if (bestCallIndex > 6 && maxProfit.lt(ethers.utils.parseEther("0.1"))) {
     console.log("Profit ETH too small");
     return;
   }

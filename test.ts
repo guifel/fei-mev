@@ -56,13 +56,13 @@ describe("FeiFlashBuy", function () {
 
     // Wait a day for the timelock
 
-    await hre.network.provider.request({
-      method: "evm_mine",
-      params: [(await ethers.provider.getBlock("latest")).timestamp + 3600 * 24],
-    });
+    // await hre.network.provider.request({
+    //   method: "evm_mine",
+    //   params: [(await ethers.provider.getBlock("latest")).timestamp + 3600 * 24],
+    // });
 
-    await feiDao.execute(PROPOSAL_NUMBER);
-    console.log("Proposal executed");
+    // await feiDao.execute(PROPOSAL_NUMBER);
+    // console.log("Proposal executed");
 
     snapshotId = await takeSnapshot();
   });
@@ -74,18 +74,18 @@ describe("FeiFlashBuy", function () {
 
   it("Run DAI dydx", async function () {
     // Get some DAI to the contract for it to pass while testing
-    const daiWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [daiWhale],
-    });
+    // const daiWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
+    // await hre.network.provider.request({
+    //   method: "hardhat_impersonateAccount",
+    //   params: [daiWhale],
+    // });
 
-    await dai
-      .connect(await ethers.getSigner(daiWhale))
-      .transfer(feiFlashBuy.address, ethers.utils.parseEther("10000"), {
-        gasPrice: "100000000000",
-        gasLimit: "100000",
-      });
+    // await dai
+    //   .connect(await ethers.getSigner(daiWhale))
+    //   .transfer(feiFlashBuy.address, ethers.utils.parseEther("10000"), {
+    //     gasPrice: "100000000000",
+    //     gasLimit: "100000",
+    //   });
 
     // Do the thing
     await feiFlashBuy.daiDydxFlashBuy(ethers.utils.parseEther("1000000"), DAI_BONDING_CURVE);
@@ -95,15 +95,15 @@ describe("FeiFlashBuy", function () {
 
   it("Run DAI", async function () {
     // Get some USDC to the contract for it to pass while testing
-    const usdcWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [usdcWhale],
-    });
-    await usdc.connect(await ethers.getSigner(usdcWhale)).transfer(feiFlashBuy.address, "10000000000", {
-      gasPrice: "100000000000",
-      gasLimit: "100000",
-    });
+    // const usdcWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
+    // await hre.network.provider.request({
+    //   method: "hardhat_impersonateAccount",
+    //   params: [usdcWhale],
+    // });
+    // await usdc.connect(await ethers.getSigner(usdcWhale)).transfer(feiFlashBuy.address, "10000000000", {
+    //   gasPrice: "100000000000",
+    //   gasLimit: "100000",
+    // });
 
     // Do the thing
     await feiFlashBuy.uniV3FlashBuy(
@@ -119,15 +119,15 @@ describe("FeiFlashBuy", function () {
 
   it("Run RAI", async function () {
     // Get some USDC to the contract for it to pass while testing
-    const usdcWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [usdcWhale],
-    });
-    await usdc.connect(await ethers.getSigner(usdcWhale)).transfer(feiFlashBuy.address, "30000000000", {
-      gasPrice: "100000000000",
-      gasLimit: "100000",
-    });
+    // const usdcWhale = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503";
+    // await hre.network.provider.request({
+    //   method: "hardhat_impersonateAccount",
+    //   params: [usdcWhale],
+    // });
+    // await usdc.connect(await ethers.getSigner(usdcWhale)).transfer(feiFlashBuy.address, "30000000000", {
+    //   gasPrice: "100000000000",
+    //   gasLimit: "100000",
+    // });
 
     // Do the thing
     await feiFlashBuy.uniV3FlashBuy(
@@ -143,14 +143,14 @@ describe("FeiFlashBuy", function () {
 
   it("Run DPI", async function () {
     // Get some USDC to the contract for it to pass while testing
-    const wethWhale = "0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0";
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [wethWhale],
-    });
-    await weth
-      .connect(await ethers.getSigner(wethWhale))
-      .transfer(feiFlashBuy.address, ethers.utils.parseEther("1"));
+    // const wethWhale = "0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0";
+    // await hre.network.provider.request({
+    //   method: "hardhat_impersonateAccount",
+    //   params: [wethWhale],
+    // });
+    // await weth
+    //   .connect(await ethers.getSigner(wethWhale))
+    //   .transfer(feiFlashBuy.address, ethers.utils.parseEther("1"));
 
     // Do the thing
     await feiFlashBuy.uniV3FlashBuy(

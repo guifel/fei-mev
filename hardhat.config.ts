@@ -8,7 +8,7 @@ const config: HardhatUserConfig = {
       chainId: 1,
       forking: {
         url: process.env.ETH_RPC as string,
-        blockNumber: 13301740,
+        blockNumber: 13305041,
       },
     },
     mainnet: {
